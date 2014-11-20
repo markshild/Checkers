@@ -1,16 +1,17 @@
 require_relative 'dependencies'
 
-
+class MoveError < StandardError
+end
 
 class Piece
 
-  attr_reader :color
+  attr_reader :color, :king
 
   attr_accessor :pos
 
-  DELTAS = [[-1,-1],[-1.1],[1,-1],[1,1]]
+  DELTAS = [[-1,-1],[-1,1],[1,-1],[1,1]]
   RED_DELTAS = DELTAS[0..1]
-  BLACK_DELTAS = DELTAS[1..2]
+  BLACK_DELTAS = DELTAS[2..3]
 
   RENDER = { black: '⚈', red: '♾' }
 
@@ -21,43 +22,50 @@ class Piece
     @king = king
   end
 
-  def perform_moves!(start,*finish)
-    if finish.count == 1
-      if perform_slide(finish)
-        move_helper!
-      elsif perform_jump(finish)
-        move_helper!
-        mid = [(finish[0] - start[0])/2, (finish[1] - start[1])/2]
-        @board[mid] = nil
-    elsif valid_move_seq?(@board, start,*finish)
+  def perform_moves!(move_array)
+    start = move_array.first
+    finish = move_array[1]
+    if move_array.count == 2
+      @board[start].perform_slide(finish)
 
+      @board[start].perform_jump(finish)
+
+    elsif valid_move_seq?(@board, move_array)
+      perform_moves!(move_array[0..1])
+      perform_moves!(move_array.drop(1))
+    else
+      raise MoveError "Invalid Move Error"
     end
   end
 
-  def valid_move_seq?(nboard, start,*finish)
+  def valid_move_seq?(nboard, move_array)
     duped = nboard.dup
-    if *finish.count == 1
+    start = move_array[0]
+    finish = move_array[1]
+    if move_array.count == 2
       return nboard[start].perform_jump(finish)
     else
-      nfinish = finish[0]
-      return false if !nboard[start].perform_jump(nfinish)
-      valid_move_seq?(duped, nfinish, finish.drop(1))
+      return false if !nboard[start].perform_jump(finish)
+      valid_move_seq?(duped, finish, move_array.drop(1))
     end
   end
 
   def move_helper!(start, finish)
-    @board[finish] = self
-    self.pos = new_pos
-    @board[self.pos] = nil
+    @board[finish] = @board[start]
+    @board[finish].pos = finish
+    @board[start] = nil
   end
 
 
   def perform_slide(new_pos)
 
     x2, y2 = new_pos
-    x1, y1 = pos
-    return true if move_diffs.include?([x2-x1,y2-y1])
-    false
+    x1, y1 = self.pos
+    if move_diffs.include?([x2-x1,y2-y1])
+      move_helper!(self.pos,new_pos)
+      return true
+    end
+    nil
   end
 
   def renders
@@ -69,12 +77,17 @@ class Piece
   def perform_jump(new_pos)
     x2, y2 = new_pos
     x1, y1 = pos
-    middle = [(x2-x1)/2 , (y2-y1)/2]
+    middle = [(x2+x1)/2 , (y2+y1)/2]
     double = move_diffs.map {|pos| pos.map { |el| el*2} }
-    if double.include?([x2-x1,y2-y1]) && !@board[middle].empty && @board[middle].color != color
-      return true
+    p middle
+    p @board[middle].pos
+    p @board[middle].color
+    if double.include?([x2-x1,y2-y1]) && (!@board[middle].nil? && @board[middle].color != self.color)
+      move_helper!(self.pos,new_pos)
+      @board[middle] = nil
+
     end
-    false
+
   end
 
 

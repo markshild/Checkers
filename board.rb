@@ -25,15 +25,11 @@ class Board
     @rows[x][y] = value
   end
 
-  def add_piece(piece, pos)
-    raise 'position not empty' unless empty?(pos)
 
-    self[pos] = piece
-  end
 
-  def move(start,finish)
-    raise "No Piece to move" if empty?(start)
-    @board[start].perform_moves!
+  def move(moves)
+    raise "No Piece to move" if empty?(moves[0])
+    @board[start].perform_moves!(moves)
   end
 
   def empty?(pos)
@@ -41,9 +37,7 @@ class Board
   end
 
   def display
-    working_array =
-
-    render.map.with_index do |row, rowidx|
+    working_array = render.map.with_index do |row, rowidx|
       row.unshift(rowidx + 1).join(" ║ ")
     end
 

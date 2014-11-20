@@ -1,6 +1,9 @@
-# require_relative 'dependencies'
-#
-# class HumanPlayer
-#
-#
-# end
+require_relative 'dependencies'
+
+class HumanPlayer
+
+  def initialize
+
+  end
+
+end

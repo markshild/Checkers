@@ -7,18 +7,24 @@ class Game
   end
 
   def play
-    while true
+    until over?
       @board.display
-      # begin
+      begin
         move = get_move
         @board.move(move)
-      # rescue StandardError => e
-      #   puts e.message
-      #   retry
-      # end
+      rescue StandardError => e
+        puts e.message
+        retry
+      end
       switch_move
       @board.promote
     end
+    switch_move
+    puts "#{@board.current_turn.to_s.capitalize} wins!"
+  end
+
+  def over?
+    @board.white_pieces.count == 0 || @board.black_pieces.count == 0
   end
 
   def get_move
@@ -34,5 +40,13 @@ class Game
   def switch_move
     @board.current_turn == :white ? @board.current_turn = :black :  @board.current_turn = :white
   end
+
+end
+
+if __FILE__ == $PROGRAM_NAME
+
+  g = Game.new
+  g.play
+
 
 end

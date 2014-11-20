@@ -88,6 +88,13 @@ class Board
     @rows.flatten.compact
   end
 
+  def white_pieces
+    pieces.select {|piece| piece.color == :white }
+  end
+
+  def black_pieces
+    pieces.select {|piece| piece.color == :black }
+  end
 
   def dup
     dup_board = Board.new(false)

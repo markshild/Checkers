@@ -2,13 +2,16 @@ require_relative 'dependencies'
 
 class Board
 
+  attr_accessor :current_turn
+
   def initialize(fill = true)
     @rows = Array.new(8){ Array.new(8){ nil } }
     # @players = {
-    #     red: HumanPlayer.new  ,
+    #     white: HumanPlayer.new  ,
     #     black: HumanPlayer.new
     # }
     fill_board if fill
+    @current_turn = :white
   end
 
   def [](pos)
@@ -25,11 +28,16 @@ class Board
     @rows[x][y] = value
   end
 
-
+  def promote
+    pieces.each { |piece| piece.maybe_promote}
+    nil
+  end
 
   def move(moves)
     raise "No Piece to move" if empty?(moves[0])
-    @board[start].perform_moves!(moves)
+    move_piece = self[moves[0]]
+    raise "That is not your piece" if move_piece.color != current_turn
+    move_piece.perform_moves!(moves)
   end
 
   def empty?(pos)
@@ -106,7 +114,7 @@ class Board
           if row < 3
             self[pos] = Piece.new(pos, :black, self)
           elsif row > 4
-            self[pos] = Piece.new(pos, :red, self)
+            self[pos] = Piece.new(pos, :white, self)
           end
         end
 

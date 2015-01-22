@@ -6,10 +6,6 @@ class Board
 
   def initialize(fill = true)
     @rows = Array.new(8){ Array.new(8){ nil } }
-    # @players = {
-    #     white: HumanPlayer.new  ,
-    #     black: HumanPlayer.new
-    # }
     fill_board if fill
     @current_turn = :white
   end

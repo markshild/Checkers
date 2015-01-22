@@ -31,10 +31,7 @@ class Piece
       end
 
     elsif valid_move_seq?(move_array)
-      p "Before Loop"
-      p move_array.count
       until move_array.count < 2
-        p "Anything"
         start = move_array.shift
         finish = move_array.first
         @board[start].perform_jump(finish)
@@ -90,11 +87,8 @@ class Piece
     p double
     p move_diffs
     if double.include?(diff) && (!@board[middle].nil? && @board[middle].color != self.color)
-      p self.pos
-      p new_pos
       move_helper!(self.pos,new_pos)
       @board[middle] = nil
-      p "I've been here"
       return true
     end
     false
